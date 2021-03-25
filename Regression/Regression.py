@@ -11,6 +11,10 @@
 # vector that gets raised to another degree - becoming its own multivariate
 
 
+#TODO Include Z score normalization
+
+
+
 
 import math
 import numpy as np
@@ -31,13 +35,6 @@ def graph(X,Y, W):
   plt.show()
 
 
-
-def power_array(X,p):
-  #Given a vector returns a new vector with the values raised to value p
-  Y = []
-  for x in X:
-    Y.append(x**p)
-  return Y
 
 def normalize(dataframe):
   #Normalizes data by compressing range to 0 - 1
@@ -60,16 +57,13 @@ def higher_order(V, degree):
     return V
   X = V
   for i in range(2,degree+1):
-    X = np.column_stack((X, power_array(V,i)))
+    X = np.column_stack((X, np.power(V,i)))
   return X
 
 def cost(W, X, Y):
   #calculates cost -- half the sum of the errors squared.
   y_hat = X @ W
-  errors = []
-  for i in range(len(Y)):
-    error = y_hat[i] - Y[i]
-    errors.append(error)
+  errors = y_hat - Y
   return sum([e**2 for e in errors])/2
 
 
@@ -82,15 +76,14 @@ def gradient_descent(W, X, Y, tolerance, iterations, beta):
     step_size = 1.0
     derivative_weights = np.zeros(X.shape[0]-1)
     y_hat = X @ W
-    errors = []
-    for i in range(len(Y)):
-        error = y_hat[i] - Y[i]
-        errors.append(error)
-    derivative_weights = np.transpose(X) @ errors
-    while(cost([W[i] - derivative_weights[i] * step_size for i in range(len(W))], X, Y) > cost(W, X, Y)-((step_size/2)*(np.linalg.norm(power_array(derivative_weights, 2))))):
+    errors = y_hat - Y
+    derivative_weights = X.T @ errors
+    gradient_mag_squared = np.dot(derivative_weights, derivative_weights)
+    current_cost = cost(W, X, Y)
+    while( cost(W - derivative_weights * step_size, X, Y) > (current_cost - ((step_size/2) * gradient_mag_squared))) :
       step_size *= beta
-    W = [W[i] - derivative_weights[i] * step_size for i in range(len(W))]
-    if((t >= iterations) or ((math.sqrt(sum(power_array(derivative_weights, 2)))) < tolerance)):
+    W = W - derivative_weights * step_size
+    if((t >= iterations) or (gradient_mag_squared < tolerance ** 2)):
       return({'Weights': W, 'Steps':t, 'MSE':sum([e**2 for e in errors])/X.shape[0]})
 
 
@@ -107,20 +100,17 @@ def lowest_mse(descents):
 
 
 def regression(original_X, Y, limit = 8, iteration_max = 200000, tolerance = 0.01, beta = 0.8, updates = True):
-  #This lets one choose how many degrees to raise their X to. 
   descents = []
   for i in range(1, limit+1):
-    X = higher_order(original_X, i)
+    variable_1 = higher_order(original_X[:,0], i)
+    variable_2 = higher_order(original_X[:,1], i)
+    X = np.column_stack((variable_2, variable_1))
     X = np.column_stack((np.ones(X.shape[0]), X))
     W = np.zeros(X.shape[1])
     descent = gradient_descent(W, X, Y, tolerance, iteration_max, beta)
     descent['degree'] = i
     descents.append(descent)
     if(updates):
-      print("Degree ", i, " finished in ", descent['Steps'], " steps with an MSE of ", descent['MSE'])
+      print("Variables with degree ",i, "finished in ", descent['Steps'], " steps with an MSE of ", descent['MSE'])
   return descents
-
-
-
-
 
