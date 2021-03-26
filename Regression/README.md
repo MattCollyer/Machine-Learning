@@ -84,7 +84,7 @@ Steps: 14140
 ```
  boyo boy is dat ugly. 
 Welp. Here's the graph. 
-![BothTrain]("/Regression\ Graphs/BothTrain.png")
+![BothTrain]("/Regression Graphs/BothTrain.png")
 
 Ok lets see how it works with the test and validation sets:
 
