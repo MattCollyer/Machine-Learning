@@ -7,13 +7,6 @@
 #Author: Matt Collyer, matthewcollyer@bennington.edu
 #For Machine Learning, Bennington, 2021
 
-#TODO: work in multivariate and multivariate. I mean multiple starting X vectors. Currently I assume one x 
-# vector that gets raised to another degree - becoming its own multivariate
-
-
-#TODO Include Z score normalization
-
-
 
 
 import math
@@ -71,7 +64,6 @@ def gradient_descent(W, X, Y, tolerance, iterations, beta):
   #Where the magic happens. 
   #Returns Weights, Steps taken, MSE (RSS/N)
   #Uses backtracking line search to find step size.
-
   for t in range(1, iterations+1):
     step_size = 1.0
     derivative_weights = np.zeros(X.shape[0]-1)
@@ -88,6 +80,11 @@ def gradient_descent(W, X, Y, tolerance, iterations, beta):
 
 
 
+def calculate_MSE(W,X,Y):
+
+  errors = (X @ W) - Y
+  return sum([e**2 for e in errors])/X.shape[0]
+
 
 def lowest_mse(descents):
   #Given a list of dicts of descents, returns the dict with the lowest MSE
@@ -96,15 +93,24 @@ def lowest_mse(descents):
     mses.append(descent['MSE'])
   return descents[mses.index(min(mses))]
 
+def raise_variables(original_X, degree):
+  #This is just a dumb function so I can raise have multiple variables raised to a degree.
+  for i in range(original_X.shape[1]):
+    variable = higher_order(original_X[:,i], degree)
+    if(i == 0):
+      X = variable
+    else:
+      X = np.column_stack((variable, X))
+  return X
 
 
-
-def regression(original_X, Y, limit = 8, iteration_max = 200000, tolerance = 0.01, beta = 0.8, updates = True):
+def polynomial_regression(original_X, Y, limit = 8, iteration_max = 200000, tolerance = 0.01, beta = 0.8, updates = True):
   descents = []
   for i in range(1, limit+1):
-    variable_1 = higher_order(original_X[:,0], i)
-    variable_2 = higher_order(original_X[:,1], i)
-    X = np.column_stack((variable_2, variable_1))
+    if(len(original_X.shape)>1):
+      X = raise_variables(original_X, i)
+    else:
+      X = higher_order(original_X, i)
     X = np.column_stack((np.ones(X.shape[0]), X))
     W = np.zeros(X.shape[1])
     descent = gradient_descent(W, X, Y, tolerance, iteration_max, beta)
