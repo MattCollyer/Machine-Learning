@@ -1,4 +1,4 @@
-#hello
+# hello
 
 Regression Writeup.
 
@@ -8,7 +8,7 @@ This writeup probably won't be as robust as I would like. Sorry! Next time for s
 
 
 
-###Where to begin??
+### Where to begin??
 Linear Regression I guess. This was fairly simple. Nothing stumped me here. 
 The jump from linear regression to polynomial took time... but overall it was good.
 
@@ -41,7 +41,7 @@ def gradient_descent(W, X, Y, tolerance, iterations, beta):
 Pretty nice.
 
 
-###Data time
+### Data time
 Cleaning data is something I've done a thousand times. It ain't fun, but it aint hard. Just tedious... so tedious. 
 
 I focused mainly on the columns "Land SF", "TotalFinishedArea" and "TotalAppraisedValue".
@@ -67,8 +67,8 @@ Ok! Now we've got three beautiful csv's. Training, validation and test.
 Now for the not fun stuff.
 I mean.. fun ! YEAH.
 
-###What the hell am I gonna choose ?
-####both
+### What the hell am I gonna choose ?
+#### both
 
 First, I wanted to choose BOTH landSF and totalFinishedArea against the totalAppraisedValue
 
@@ -84,6 +84,7 @@ Steps: 14140
 ```
  boyo boy is dat ugly. 
 Welp. Here's the graph. 
+
 ![BothTrain]("/Regression Graphs/BothTrain.png")
 
 Ok lets see how it works with the test and validation sets:
@@ -95,7 +96,7 @@ VALIDATION MSE: 0.003019297713348949
 Eh. not great on the test + validation. those outliers.....
 I next wanted to try one variable at a time.
 
-####LandSF only
+#### LandSF only
 
 
 Land SF against Total Appraised Value. Training yielded me this:
@@ -113,7 +114,7 @@ MSE is 0.005201322387266734
 
 Not great.
 
-####Total Finished Area only
+#### Total Finished Area only
 Total Finished Area against Total Appraised Value. Training yielded me this:
 
 ```
@@ -135,7 +136,7 @@ MSE is 0.002587949461774681
 
 
 
-##Conclusion
+## Conclusion
 Alrighty. It is now the moment you've been patiently awaiting. How will Matt truly show me he knows his stuff? Sure... he can code it. But does he understand it? No more hand waving. Whats really the conclusions he can draw here? 
 
 Well prepare for more hand waving. I'm impatient and wanna get caught up !!!
@@ -148,7 +149,7 @@ Not really surprised there. That's about as far as my real estate intuition goes
 I was suprised on how dissapointing my test and validations sets performed. Big mEH.
 Lots to change if I were to do this again.
 
-###What I didn't do.
+### What I didn't do.
 Yeah. As I've said... I am one lazy sob. I shoud've taken the outliers out properly and I should have ACTUALLY saved all descents from my training to run them against the validation and test. I should have then decided if one had a lower MSE with the validation and test to maybe have changed my function... I mean... that's what they're there for. oh well. Next time... for sure ;P
 
 
