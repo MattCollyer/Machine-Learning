@@ -6,7 +6,8 @@ Regression Writeup.
 Hi Justin. I'm behind! 
 This writeup probably won't be as robust as I would like. Sorry! Next time for sure...
 
-
+OK I could not my pictures to show up in here. It took me so long but the path never worked. 
+The folder has the pics if you wanna see the graphs. Let me know if I'm missing something because I really feel like I am.
 
 ### Where to begin??
 Linear Regression I guess. This was fairly simple. Nothing stumped me here. 
