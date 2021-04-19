@@ -1,9 +1,6 @@
 
 
-#Same as before now with L2
-
-
-
+##Completely the same as my other descent stuff, now with L2
 #Author: Matt Collyer, matthewcollyer@bennington.edu
 #For Machine Learning, Bennington, 2021
 
@@ -49,11 +46,12 @@ def higher_order(V, degree):
     X = np.column_stack((X, np.power(V,i)))
   return X
 
-def cost(W, X, Y):
+def cost(W, X, Y, l2_lambda = 0):
   #calculates cost -- half the sum of the errors squared.
   y_hat = X @ W
   errors = y_hat - Y
-  return sum([e**2 for e in errors])/2
+  complexity = l2_lambda * sum(np.square(W))
+  return (sum(np.square(errors))/2) + complexity
 
 
 def gradient_descent(W, X, Y, tolerance, iterations, beta, l2_lambda):
@@ -62,20 +60,20 @@ def gradient_descent(W, X, Y, tolerance, iterations, beta, l2_lambda):
   #Uses backtracking line search to find step size.
   for t in range(1, iterations+1):
     step_size = 1.0
-    derivative_weights = np.zeros(X.shape[0]-1)
+    derivative_weights = np.zeros(X.shape[1]-1)
     y_hat = X @ W
     errors = y_hat - Y
     L2 = l2_lambda * W
     L2[0] = 0 #Don't do bias!
     derivative_weights = X.T @ errors + L2
     gradient_mag_squared = np.dot(derivative_weights, derivative_weights)
-    current_cost = cost(W, X, Y)
-    while( cost(W - derivative_weights * step_size, X, Y) > (current_cost - ((step_size/2) * gradient_mag_squared))) :
-      step_size *= beta
+    current_cost = cost(W, X, Y,l2_lambda)
+    while(cost(W - derivative_weights * step_size, X, Y) > (current_cost - ((step_size/2) * gradient_mag_squared))) :
+      step_size *= beta 
     W = W - derivative_weights * step_size
     if((t >= iterations) or (gradient_mag_squared < tolerance ** 2)):
       return({'Weights': W, 'Steps':t, 'MSE':sum([e**2 for e in errors])/X.shape[0]})
-
+    
 
 def calculate_MSE(W,X,Y):
   errors = (X @ W) - Y
@@ -118,30 +116,28 @@ def polynomial_regression(original_X, Y, limit = 8, L2_lambda = 0, iteration_max
   return descents
 
 
-def summary(X, Y, results):
+def summary(X, Y, results, test_X, test_Y):
   best_result = lowest_mse(results)
   print(best_result)
   W = best_result['Weights']
-  # new_Y = np.column_stack((Y,Y))
-  # Y = np.column_stack((Y, new_Y))
-  graph(X, Y, W)
-
+  test_x = higher_order(test_X, best_result['degree'])
+  test_x = np.column_stack((np.ones(test_X.shape[0]), test_x))
+  print('MSE for test set: ', calculate_MSE(W, test_x, test_Y))
+  graph(test_X, test_Y, W)
 
 
 if __name__ == '__main__':
-  # data = pd.read_csv('linear_regression.csv')
-  # data = normalize(data)
-  # keys = list(data.keys())
-  # X = np.array((data[keys[0]]))
-  # X = np.column_stack((X, data[keys[1]]))
-  # X = np.column_stack((X, data[keys[2]]))
-  # Y = np.array((data[keys[3]]))
+  train_data = pd.read_csv('Data/demo_train.csv')
+  train_X = train_data['X']
+  train_Y = train_data['Y']
+
+  test_data = pd.read_csv('Data/demo_test.csv')
+  test_X = test_data['X']
+  test_Y = test_data['Y']
 
 
-  X = np.array(([0, 1, 2, 3, 4]))
-  Y = np.array(([1, 2, 5, 10, 17]))
-  lamb = 0.1
-  summary(X, Y, polynomial_regression(X, Y, limit = 3))
-  print("Now with Lambda as ", lamb)
-  summary(X, Y, polynomial_regression(X, Y, L2_lambda = lamb, limit = 3))
+  l2_lambdas = [0, 0.01, 0.1, 1, 10]
   
+  for lamb in l2_lambdas:
+    print("Now with Lambda as ", lamb)
+    summary(train_X, train_Y,polynomial_regression(train_X, train_Y, L2_lambda = lamb, limit = 5),test_X, test_Y)
