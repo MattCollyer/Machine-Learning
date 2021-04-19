@@ -100,7 +100,7 @@ I next wanted to try one variable at a time.
 
 Land SF against Total Appraised Value. Training yielded me this:
 ```
-6th degree
+6th degree![FATest](/assets/FATest.png)
 24390 Steps
 'MSE': 0.0014746153594685303
 Total Appraised Value =  0.00585349 * LandSF^6 + 0.61867204* LandSF^5 +  2.17337952* LandSF^4 -2.83073102* LandSF^3  -2.37963248* LandSF^2 + 0.11841184* LandSF + 2.63007589
