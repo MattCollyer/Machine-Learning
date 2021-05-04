@@ -16,8 +16,10 @@ class NeuralNetwork(nn.Module):
         self.linear_relu_stack = nn.Sequential(
             nn.Linear(28*28, 512), #28 x 28 pixel image
             nn.ReLU(),
+            nn.Dropout(0.2),
             nn.Linear(512, 512),
             nn.ReLU(),
+            nn.Dropout(0.5),
             nn.Linear(512, 10),
             nn.ReLU()
         )

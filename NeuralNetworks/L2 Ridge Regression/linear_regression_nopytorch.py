@@ -130,7 +130,6 @@ if __name__ == '__main__':
   train_data = pd.read_csv('Data/demo_train.csv')
   train_X = train_data['X']
   train_Y = train_data['Y']
-
   test_data = pd.read_csv('Data/demo_test.csv')
   test_X = test_data['X']
   test_Y = test_data['Y']

@@ -1,65 +1,71 @@
-import os
 import torch
-from torch import nn
-from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
+from torch.utils import data
+from torchvision import datasets
+from torchvision.transforms import ToTensor
 from dataset import *
 
-class NeuralNetwork(nn.Module):
-    def __init__(self):
-        super(NeuralNetwork, self).__init__()
-        self.flatten = nn.Flatten()
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(28*28, 512), #28 x 28 pixel image
-            nn.ReLU(),
-            nn.Linear(512, 512),
-            nn.ReLU(),
-            nn.Linear(512, 10),
-            nn.ReLU()
-        )
 
-    def forward(self, x):
-        x = self.flatten(x)
-        logits = self.linear_relu_stack(x)
-        return logits
+def softmax_regression(X, W, b):
+  score = X.reshape((-1, W.shape[0])) @ W + b
+  return softmax(score)
 
 
+def softmax(score):
+  e_X = torch.exp(score)
+  sum_e = e_X.sum(axis = 1, keepdim = True)
+  return e_X / sum_e
+
+def loss(y_hat, y):
+  #sum of -log(y_hat) * y
+  one_hot = torch.zeros(y_hat.shape)
+  y = y.unsqueeze(1)
+  one_hot.scatter_(1, y, 1)
+  neg_log = -torch.log(y_hat)
+  return (one_hot * neg_log).sum()
+
+def gradient_descent(W, step_size, batch_size):
+  with torch.no_grad():
+    for w in W:
+      w -= w.grad * step_size / batch_size
+      w.grad.zero_()
+
+def train(num_inputs, num_outputs, data_iterator, epochs, step_size):
+  #Step 1 - initialize weights and bias
+  W = torch.normal(0, 0.01, size = (num_inputs, num_outputs), requires_grad=True)
+  b = torch.zeros(num_outputs, requires_grad=True)
+  for _ in range(epochs):
+    for X, y in data_iterator:
+      #Calculate predictions ->
+      y_hat = softmax_regression(X, W, b)
+      #Calculate loss
+      l = loss(y_hat, y)
+      # compute gradient <-
+      l.backward()
+      gradient_descent([W, b], step_size, X.shape[0])
+  return [W, b]
+
+def accuracy(data_iterator, model, loss_fn):
+  (W, b) = model
+  size = len(data_iterator.dataset)
+  test_loss, correct = 0, 0
+  with torch.no_grad():
+    for X, y in data_iterator:
+      y_hat = softmax_regression(X, W, b)
+      test_loss += loss_fn(y_hat, y).item()
+      correct += (y_hat.argmax(1) == y).type(torch.float).sum().item()
+    test_loss /= size
+    correct /= size
+    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
 
-
-def train(X, Y, step_size = 0.05, batch_size = 1, num_epochs = None):
-  m = X.shape[1]
-  weights = torch.normal(0, 0.01, size=(m, 1), requires_grad=True)
-  bias = torch.zeros(1, requires_grad=True)
-  size = len(dataloader.dataset)
-  for batch, (X, y) in enumerate(dataloader):
-    # Compute prediction and loss
-    pred = model(X)
-    loss = loss_fn(pred, y)
-
-    # Backpropagation
-
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-    if batch % 100 == 0:
-      loss, current = loss.item(), batch * len(X)
-      print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
-
-
-def squared_loss(y_hat, y):
-  return (y_hat - y)**2 / 2
-
-def manual():
-  device = 'cuda' if torch.cuda.is_available() else 'cpu'
-  model = NeuralNetwork().to(device)
+if __name__ == '__main__':
+  #load data
   train_dataloader, test_dataloader = get_data()
-
-  ##Things we decide
-  learning_rate = 1e-3 #step size
-  batch_size = 64
-  epochs = 10
-  loss_fn = squared_loss
-
-
-
+  #data labels 
+  batch_size = 256
+  print("Manual model 1")
+  model = train(784, 10, train_dataloader, 3, 0.1)
+  accuracy(test_dataloader, model, loss)
+  print("Manual model 2")
+  model = train(784, 10, train_dataloader, 2, 0.01)
+  accuracy(test_dataloader, model, loss)
