@@ -1,7 +1,7 @@
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader
-
+from params import *
 
 def get_data():
   training_data = datasets.FashionMNIST(
@@ -18,6 +18,6 @@ def get_data():
       transform=ToTensor()
   )
 
-  train = DataLoader(training_data, batch_size=64, shuffle=True)
-  test = DataLoader(test_data, batch_size=64, shuffle=True)
+  train = DataLoader(training_data, batch_size=batch_size, shuffle=True)
+  test = DataLoader(test_data, batch_size=batch_size, shuffle=True)
   return train, test
